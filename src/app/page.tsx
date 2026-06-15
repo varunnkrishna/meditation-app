@@ -1,65 +1,148 @@
-import Image from "next/image";
+'use client';
+
+import { useState } from 'react';
+import Link from 'next/link';
+import type { Duration, Sound } from '@/types';
+import { SessionScreen } from '@/components/SessionScreen';
+
+const DURATIONS: { label: string; value: Duration }[] = [
+  { label: '2 min', value: 120 },
+  { label: '5 min', value: 300 },
+  { label: '10 min', value: 600 },
+  { label: '15 min', value: 900 },
+];
+
+const SOUNDS: { label: string; value: Sound }[] = [
+  { label: 'Birds', value: 'birds' },
+  { label: 'Water', value: 'water' },
+  { label: 'Silence', value: 'silence' },
+];
+
+type Phase = 'setup' | 'session';
 
 export default function Home() {
+  const [phase, setPhase] = useState<Phase>('setup');
+  const [duration, setDuration] = useState<Duration | null>(null);
+  const [sound, setSound] = useState<Sound | null>(null);
+
+  function reset() {
+    setPhase('setup');
+    setDuration(null);
+    setSound(null);
+  }
+
+  if (phase === 'session' && duration !== null && sound !== null) {
+    return (
+      <SessionScreen
+        duration={duration}
+        sound={sound}
+        onExit={reset}
+        onComplete={reset}
+      />
+    );
+  }
+
+  const canStart = duration !== null && sound !== null;
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <main className="min-h-screen flex flex-col items-center justify-center px-6 py-16">
+      <div className="w-full max-w-[640px]">
+        <header className="mb-16 text-center">
+          <h1 className="text-2xl font-light text-ink tracking-wide">
+            Stilldesk
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p className="text-muted text-sm mt-2">
+            Meditate in seconds. No login.
           </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+        </header>
+
+        <div className="space-y-12">
+          <section aria-labelledby="duration-label">
+            <h2
+              id="duration-label"
+              className="text-base font-light text-muted mb-4"
+            >
+              How long?
+            </h2>
+            <div
+              className="grid grid-cols-4 gap-3"
+              role="group"
+              aria-labelledby="duration-label"
+            >
+              {DURATIONS.map(({ label, value }) => (
+                <button
+                  key={value}
+                  onClick={() => setDuration(value)}
+                  aria-pressed={duration === value}
+                  className={[
+                    'py-4 rounded-lg text-sm font-light transition-all duration-200',
+                    'min-h-[48px] border',
+                    duration === value
+                      ? 'bg-accent text-canvas border-accent'
+                      : 'bg-surface text-ink border-surface hover:border-accent/50',
+                  ].join(' ')}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </section>
+
+          <section aria-labelledby="sound-label">
+            <h2
+              id="sound-label"
+              className="text-base font-light text-muted mb-4"
+            >
+              Sound?
+            </h2>
+            <div
+              className="grid grid-cols-3 gap-3"
+              role="group"
+              aria-labelledby="sound-label"
+            >
+              {SOUNDS.map(({ label, value }) => (
+                <button
+                  key={value}
+                  onClick={() => setSound(value)}
+                  aria-pressed={sound === value}
+                  className={[
+                    'py-4 rounded-lg text-sm font-light transition-all duration-200',
+                    'min-h-[48px] border',
+                    sound === value
+                      ? 'bg-accent text-canvas border-accent'
+                      : 'bg-surface text-ink border-surface hover:border-accent/50',
+                  ].join(' ')}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </section>
+
+          <button
+            onClick={() => canStart && setPhase('session')}
+            disabled={!canStart}
+            aria-disabled={!canStart}
+            className={[
+              'w-full py-4 rounded-full text-sm font-medium transition-all duration-200',
+              canStart
+                ? 'bg-accent text-canvas hover:opacity-90 cursor-pointer'
+                : 'bg-surface text-muted cursor-not-allowed opacity-50',
+            ].join(' ')}
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            Start
+          </button>
         </div>
-      </main>
-    </div>
+
+        <footer className="mt-16 text-center">
+          <Link
+            href="/blog"
+            className="text-xs text-muted hover:text-ink transition-colors duration-200"
+          >
+            Read the blog →
+          </Link>
+        </footer>
+      </div>
+    </main>
   );
 }
