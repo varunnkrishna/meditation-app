@@ -1,9 +1,11 @@
 export type Duration = 120 | 300 | 600 | 900;
-export type Sound = 'birds' | 'water' | 'silence';
+export type Sound = 'silence' | 'water' | 'birds' | 'rain' | 'wind' | 'chimes';
 
-export interface MeditationConfig {
-  duration: Duration;
-  sound: Sound;
+export interface Stats {
+  sessions: number;
+  minutes: number;
+  lastDate: string | null;
+  streak: number;
 }
 
 export interface PostFrontmatter {
